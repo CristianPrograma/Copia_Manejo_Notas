@@ -174,6 +174,11 @@ public class Grade extends javax.swing.JInternalFrame {
         jLabel9.setText("Materias:");
         getContentPane().add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 140, 87, 30));
 
+        cbm_per.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbm_perItemStateChanged(evt);
+            }
+        });
         getContentPane().add(cbm_per, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 220, 210, 30));
 
         pack();
@@ -194,7 +199,7 @@ public class Grade extends javax.swing.JInternalFrame {
                 cbm_id_mat.addItem(rs.getString("ID_SUBJECT") + " - " + rs.getString("NAME_SUBJECT"));
             }
         } catch (SQLException ex) {
-            Logger.getLogger(activity.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Grade.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_cbm_id_curItemStateChanged
 
@@ -219,6 +224,8 @@ public class Grade extends javax.swing.JInternalFrame {
             cbm_per.setVisible(true);
             jLabel6.setVisible(true);
             jLabel7.setVisible(true);
+            
+            cargarPeriodo();
         }
     }//GEN-LAST:event_jRadioButton2MousePressed
 
@@ -230,11 +237,24 @@ public class Grade extends javax.swing.JInternalFrame {
             jTable1.setVisible(false);
             cbm_per.setVisible(false);
             jLabel6.setVisible(false);
-            jLabel7.setVisible(false);
-            
-            cargarPeriodo();
+            jLabel7.setVisible(false);       
         }
     }//GEN-LAST:event_jRadioButton1MousePressed
+
+    private void cbm_perItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbm_perItemStateChanged
+        cbm_mat_log.removeAllItems();
+        try {  
+            ResultSet rs = cone3.consultar("SELECT ach.ID_SUBJECT, NAME_SUBJECT FROM achievement as ach "
+                    + "INNER JOIN subject s ON s.ID_SUBJECT = ach.ID_SUBJECT "
+                    + "INNER JOIN period p ON p.ID_PERIOD = ach.ID_PERIOD WHERE ach.ID_PERIOD ="+cbm_per.getSelectedItem() + ""
+                    + " AND ach.TYPE_ACHIEVEMENTS = 'academico'");
+            while (rs.next()) {
+                cbm_mat_log.addItem(rs.getString("ID_SUBJECT") + " - " + rs.getString("NAME_SUBJECT"));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(Grade.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }//GEN-LAST:event_cbm_perItemStateChanged
 
 
     public void cargarCursos() {
@@ -249,7 +269,7 @@ public class Grade extends javax.swing.JInternalFrame {
                           
             }  
         } catch (SQLException ex) {
-            Logger.getLogger(activity.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Grade.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
@@ -264,7 +284,7 @@ public class Grade extends javax.swing.JInternalFrame {
                           
             }  
         } catch (SQLException ex) {
-            Logger.getLogger(activity.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Grade.class.getName()).log(Level.SEVERE, null, ex);
         }
     }
     
