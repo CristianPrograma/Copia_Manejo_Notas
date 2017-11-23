@@ -9,7 +9,7 @@ import javax.swing.table.DefaultTableModel;
 
 
 public class Grade extends javax.swing.JInternalFrame {
-    conexion cone,cone2,cone3;
+    conexion cone,cone2,cone3,cone4,cone5,cone6;
     DefaultTableModel modelo;
     int idUser = 2;
     /**
@@ -18,7 +18,11 @@ public class Grade extends javax.swing.JInternalFrame {
     public Grade() {
         initComponents();
         cone = new conexion();
+        cone2 = new conexion();
         cone3 = new conexion();
+        cone4 = new conexion();
+        cone5 = new conexion();
+        cone6 = new conexion();
         cargarCursos();
         cbm_act_mat.setVisible(false);
         jLabel5.setVisible(false);
@@ -55,6 +59,8 @@ public class Grade extends javax.swing.JInternalFrame {
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
         cbm_per = new javax.swing.JComboBox<>();
+        lbl_mat_2 = new javax.swing.JLabel();
+        lbl_mat_1 = new javax.swing.JLabel();
 
         setClosable(true);
         setIconifiable(true);
@@ -102,7 +108,17 @@ public class Grade extends javax.swing.JInternalFrame {
         jLabel5.setText("Actividades:");
         getContentPane().add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 310, 110, 30));
 
-        getContentPane().add(cbm_id_mat, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 140, 210, 30));
+        cbm_id_mat.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbm_id_matItemStateChanged(evt);
+            }
+        });
+        cbm_id_mat.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseEntered(java.awt.event.MouseEvent evt) {
+                cbm_id_matMouseEntered(evt);
+            }
+        });
+        getContentPane().add(cbm_id_mat, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 140, 50, 30));
 
         jLabel6.setFont(new java.awt.Font("Lucida Sans Unicode", 0, 18)); // NOI18N
         jLabel6.setForeground(new java.awt.Color(0, 102, 153));
@@ -145,7 +161,12 @@ public class Grade extends javax.swing.JInternalFrame {
         jLabel7.setText("Materias x Logro");
         getContentPane().add(jLabel7, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 270, 150, 30));
 
-        getContentPane().add(cbm_act_mat, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 310, 210, 30));
+        cbm_act_mat.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                cbm_act_matActionPerformed(evt);
+            }
+        });
+        getContentPane().add(cbm_act_mat, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 310, 230, 30));
 
         jTable1.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -162,7 +183,12 @@ public class Grade extends javax.swing.JInternalFrame {
 
         getContentPane().add(jScrollPane1, new org.netbeans.lib.awtextra.AbsoluteConstraints(20, 350, 430, 130));
 
-        getContentPane().add(cbm_mat_log, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 270, 210, 30));
+        cbm_mat_log.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                cbm_mat_logItemStateChanged(evt);
+            }
+        });
+        getContentPane().add(cbm_mat_log, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 270, 50, 30));
 
         jLabel8.setFont(new java.awt.Font("Lucida Sans Unicode", 0, 18)); // NOI18N
         jLabel8.setForeground(new java.awt.Color(0, 102, 153));
@@ -181,6 +207,12 @@ public class Grade extends javax.swing.JInternalFrame {
         });
         getContentPane().add(cbm_per, new org.netbeans.lib.awtextra.AbsoluteConstraints(200, 220, 210, 30));
 
+        lbl_mat_2.setFont(new java.awt.Font("Lucida Sans Unicode", 0, 18)); // NOI18N
+        getContentPane().add(lbl_mat_2, new org.netbeans.lib.awtextra.AbsoluteConstraints(280, 270, 170, 30));
+
+        lbl_mat_1.setFont(new java.awt.Font("Lucida Sans Unicode", 0, 18)); // NOI18N
+        getContentPane().add(lbl_mat_1, new org.netbeans.lib.awtextra.AbsoluteConstraints(260, 140, 150, 30));
+
         pack();
     }// </editor-fold>//GEN-END:initComponents
     
@@ -192,11 +224,10 @@ public class Grade extends javax.swing.JInternalFrame {
  
        cbm_id_mat.removeAllItems();
         try {  
-            ResultSet rs = cone3.consultar("SELECT tsc.ID_SUBJECT, NAME_SUBJECT FROM  teachersxsubjectsxcourses as tsc "
-                    + "INNER JOIN subject s ON s.ID_SUBJECT = tsc.ID_SUBJECT "
+            ResultSet rs = cone.consultar("SELECT tsc.ID_SUBJECT FROM teachersxsubjectsxcourses as tsc "
                     + "INNER JOIN COURSES c ON c.ID_COURSES = tsc.ID_COURSES WHERE tsc.ID_COURSES ="+cbm_id_cur.getSelectedItem() + "");
             while (rs.next()) {
-                cbm_id_mat.addItem(rs.getString("ID_SUBJECT") + " - " + rs.getString("NAME_SUBJECT"));
+                cbm_id_mat.addItem(rs.getString("tsc.ID_SUBJECT"));
             }
         } catch (SQLException ex) {
             Logger.getLogger(Grade.class.getName()).log(Level.SEVERE, null, ex);
@@ -244,24 +275,71 @@ public class Grade extends javax.swing.JInternalFrame {
     private void cbm_perItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbm_perItemStateChanged
         cbm_mat_log.removeAllItems();
         try {  
-            ResultSet rs = cone3.consultar("SELECT ach.ID_SUBJECT, NAME_SUBJECT FROM achievement as ach "
-                    + "INNER JOIN subject s ON s.ID_SUBJECT = ach.ID_SUBJECT "
+            ResultSet rs = cone2.consultar("SELECT ach.ID_SUBJECT FROM achievement as ach "
                     + "INNER JOIN period p ON p.ID_PERIOD = ach.ID_PERIOD WHERE ach.ID_PERIOD ="+cbm_per.getSelectedItem() + ""
                     + " AND ach.TYPE_ACHIEVEMENTS = 'academico'");
             while (rs.next()) {
-                cbm_mat_log.addItem(rs.getString("ID_SUBJECT") + " - " + rs.getString("NAME_SUBJECT"));
+                cbm_mat_log.addItem(rs.getString("ach.ID_SUBJECT"));
             }
         } catch (SQLException ex) {
             Logger.getLogger(Grade.class.getName()).log(Level.SEVERE, null, ex);
         }
     }//GEN-LAST:event_cbm_perItemStateChanged
 
+    private void cbm_mat_logItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbm_mat_logItemStateChanged
+         String cod = cbm_mat_log.getSelectedItem() + "";
+         ResultSet rs = cone3.consultar("SELECT NAME_SUBJECT FROM subject WHERE ID_SUBJECT = " + cod);
+         
+            try{
+                
+            ResultSet rs2 = cone4.consultar("SELECT act.ID_ACTIVITIES, act.PORCENTAGE FROM activities as act "
+                    + "INNER JOIN achievement a ON a.ID_ACHIEVEMENT = act.ID_ACHIEVEMENT "
+                    + "INNER JOIN courses c ON c.ID_COURSES = act.ID_COURSES "
+                    + "WHERE act.ID_ACHIEVEMENT = "+ cbm_mat_log.getSelectedItem() + ""
+                    + " AND act.ID_COURSES = " + cbm_id_cur.getSelectedItem() + "");
+                while (rs2.next()) {
+                    cbm_act_mat.addItem(rs2.getString("act.ID_ACTIVITIES") + " - " + rs2.getString("act.PORCENTAGE"));
+                }
+            } catch (SQLException ex) {
+                Logger.getLogger(Grade.class.getName()).log(Level.SEVERE, null, ex);
+            }
+         
+         try{
+             if(rs.next()){
+                 lbl_mat_2.setText(rs.getString("NAME_SUBJECT"));
+             }
+         } catch (SQLException ex) {
+            System.out.println("Error" + ex);
+         }
+    }//GEN-LAST:event_cbm_mat_logItemStateChanged
+
+    private void cbm_act_matActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbm_act_matActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbm_act_matActionPerformed
+
+    private void cbm_id_matItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_cbm_id_matItemStateChanged
+         String cod = cbm_id_mat.getSelectedItem() + "";
+         ResultSet rs = cone4.consultar("SELECT NAME_SUBJECT FROM subject WHERE ID_SUBJECT = " + cod);
+         
+         try{
+             if(rs.next()){
+                 lbl_mat_1.setText(rs.getString("NAME_SUBJECT"));
+             }
+         } catch (SQLException ex) {
+            System.out.println("Error" + ex);
+         }
+    }//GEN-LAST:event_cbm_id_matItemStateChanged
+
+    private void cbm_id_matMouseEntered(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cbm_id_matMouseEntered
+        // TODO add your handling code here:
+    }//GEN-LAST:event_cbm_id_matMouseEntered
+
 
     public void cargarCursos() {
         cbm_id_cur.removeAllItems();
         try {
             
-            ResultSet rs = cone.consultar("SELECT tsc.ID_COURSES, NAME_COURSES FROM  teachersxsubjectsxcourses as tsc "
+            ResultSet rs = cone5.consultar("SELECT tsc.ID_COURSES FROM  teachersxsubjectsxcourses as tsc "
                     + "INNER JOIN COURSES c ON c.ID_COURSES = tsc.ID_COURSES GROUP BY tsc.ID_COURSES");
 
             while (rs.next()) {
@@ -277,7 +355,7 @@ public class Grade extends javax.swing.JInternalFrame {
         cbm_per.removeAllItems();
         try {
             
-            ResultSet rs = cone.consultar("SELECT * FROM period");
+            ResultSet rs = cone6.consultar("SELECT * FROM period");
 
             while (rs.next()) {
                 cbm_per.addItem(rs.getString("ID_PERIOD"));
@@ -310,6 +388,8 @@ public class Grade extends javax.swing.JInternalFrame {
     private javax.swing.JRadioButton jRadioButton2;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTable jTable1;
+    private javax.swing.JLabel lbl_mat_1;
+    private javax.swing.JLabel lbl_mat_2;
     private javax.swing.JLabel lbl_tit;
     // End of variables declaration//GEN-END:variables
 }
