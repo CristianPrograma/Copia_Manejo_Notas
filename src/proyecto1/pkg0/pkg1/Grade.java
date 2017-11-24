@@ -24,7 +24,9 @@ public class Grade extends javax.swing.JInternalFrame {
         cone5 = new conexion();
         cone6 = new conexion();
         cone7 = new conexion();
+        nameTeacher();
         cargarCursos();
+        
         cbm_act_mat.setVisible(false);
         lbl_des_act.setVisible(false);
     }
@@ -302,14 +304,27 @@ public class Grade extends javax.swing.JInternalFrame {
     private void cbm_mat_logActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_cbm_mat_logActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_cbm_mat_logActionPerformed
+   public void nameTeacher() {
+        try {
+            ResultSet rs = cone.consultar("SELECT NAME from person p ,users u WHERE u.ID_PERSON = p.ID_PERSON AND ID_USER = " + idUser);
+            if (rs.next()) {
+                jLabel3.setText(rs.getString("NAME"));
+            }
+        } catch (SQLException ex) {
+            Logger.getLogger(activity.class.getName()).log(Level.SEVERE, null, ex);
+        }
 
+    }
 
     public void cargarCursos() {
         cbm_id_cur.removeAllItems();
         try {
             
-            ResultSet rs = cone5.consultar("SELECT tsc.ID_COURSES FROM  teachersxsubjectsxcourses as tsc "
-                    + "INNER JOIN COURSES c ON c.ID_COURSES = tsc.ID_COURSES GROUP BY tsc.ID_COURSES");
+            ResultSet rs = cone5.consultar("SELECT  tsc.ID_COURSES FROM  teachersxsubjectsxcourses as tsc "
+                    + "INNER JOIN COURSES c ON c.ID_COURSES = tsc.ID_COURSES "
+                    + "INNER JOIN teacher t ON tsc.ID_TEACHERS = t.ID_TEACHER "
+                    + "INNER JOIN person p ON t.ID_PERSON = p.ID_PERSON "
+                    + "INNER JOIN users u ON u.ID_PERSON = p.ID_PERSON WHERE u.ID_USER ="+idUser);
 
             while (rs.next()) {
                 cbm_id_cur.addItem(rs.getString("tsc.ID_COURSES"));
